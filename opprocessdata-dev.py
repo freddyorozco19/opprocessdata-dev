@@ -208,34 +208,19 @@ if menu_id == "ExploreTeamData":
                 unsafe_allow_html=True,
             )
         
-        st.markdown("""---""")    
-        
-        with st.form(key='form'):
-            plt = st.text_area('Paste your source code')
+        st.markdown("""---""")
+        with st.form(key='form4'):
+            uploaded_file = st.file_uploader("Choose a excel file", type="xlsx")
 
-            TableName = st.text_input("Namefile",
-                                      key="filename")   
-            rsid01, rsid02 = st.columns(2)
-            with rsid01:
-                MatchID = st.text_input("MatchID:",
-                                        key="matchid")   
-            with rsid02:
-                Matchday = st.text_input("Matchday:",
-                                         key="matchday")   
+            TableName = st.text_input("Ingrese Nombre del Archivo",
+                                      key="filename"
+                                      )
+            DataMode = st.checkbox("Activate calculated columns")
+            submit_button2 = st.form_submit_button(label='Aceptar')
+    st.title("EXPLORE DATA")
+    if uploaded_file is not None:
+        df = pd.read_excel(uploaded_file)
 
-            rsid03, rsid04 = st.columns(2)
-            with rsid03:
-                CompetitionID = st.text_input("CompetitionID:",
-                                              key="competitionid")   
-            with rsid04:
-                SeasonID = st.text_input("SeasonID:",
-                                         key="seasonid")
-   
-            submit_button = st.form_submit_button(label='Aceptar')  
-     
-            
-    #df = pd.read_excel(Table)
-
-    st.markdown("""---""")
-    st.markdown("<style> div { text-align: center } </style>", unsafe_allow_html=True)
-    st.title("EVENT DATA")
+    dfORIG = df
+    st.dataframe(df)
+    st.divider()
