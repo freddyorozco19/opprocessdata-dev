@@ -1104,5 +1104,5 @@ if menu_id == "DataScraping":
             submit_button2 = st.form_submit_button(label='Aceptar')
     st.title("DATA SCRAPING")
     sofascore = sfc.Sofascore()
-    data = sofascore.get_general_match_stats(match_url)
+    data = sofascore.get_general_match_stats(MatchURL)
     st.dataframe(data)
