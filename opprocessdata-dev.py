@@ -225,4 +225,4 @@ if menu_id == "ExploreTeamData":
     colmen01, colmen02, colmen03 = st.columns(3)
     with colmen01:
         TeamList = df['Team'].drop_duplicates.tolist()
-        TeamSelColMen = st.selectbox('Choose team:' TeamList)
+        TeamSelColMen = st.selectbox('Choose team:', TeamList)
