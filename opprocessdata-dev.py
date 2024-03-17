@@ -728,3 +728,356 @@ if menu_id == "ExploreTeamData":
                 st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
         with pltmain02:
             st.dataframe(dfKK[['ActionID', 'Matchday', 'MatchID', 'Event', 'Minute', 'EfectiveMinute',  'PlayerID', 'Player', 'Team', 'X1', 'Y1', 'X2', 'Y2']])
+    if PlotVizSelExpData == "Pases":
+        pltmnop11, pltmnop12, pltmnop13 = st.columns(3)
+        with pltmnop11:
+            OptionPlot = ['Passes Viz', 'Progressive Passes', 'Passes Into Final Third', 'Passes Into Penalty Area', 'Long Passes', 'Passes Into Half Spaces']
+            OptionPlotSel = st.selectbox('Seleccionar tipo gráfico:', OptionPlot)
+        with pltmnop12:
+            EfectMinSel = st.slider('Seleccionar rango de partido:', 0, MaxAddMin, (0, MaxAddMin))
+        with pltmnop13:
+                MetOption = ['WinStats', 'FD']
+                MetOptionSel = st.selectbox('Choose color type:', MetOption)
+        if MetOptionSel == 'WinStats':
+            hex_list2 = ['#121214', '#D81149', '#FF0050']
+            hex_list = ['#121214', '#545454', '#9F9F9F']
+            colorviz = "#FF0050"
+        if MetOptionSel == 'FD':
+            hex_list2 = ['#5A9212', '#70BD0C', '#83E604']
+            hex_list = ['#121214', '#545454', '#9F9F9F']
+            colorviz = "#83E604"
+        #if OptionPlot == 'Passes Map':
+        #    with pltmnop13:
+        #        MetOption = ['Pases Claves', 'Asistencias']
+        #        MetOptionSel = st.selectbox('Seleccionar métrica:', MetOption)
+        #if OptionPlot == 'Progressive Passes Map':
+        #    with pltmnop13:
+        #        ValorProg = st.select_slider('Valor progresivo:', 0, 10)
+    
+        
+        pltmain11, pltmain12 = st.columns(2)
+        with pltmain11:
+            fig, ax = mplt.subplots(figsize=(8, 8), dpi = 800)
+            ax.axis("off")
+            fig.patch.set_visible(False)
+            pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+            pitch.draw(ax=ax)
+            #Adding directon arrow
+            ax29 = fig.add_axes([0.368,0.22,0.3,0.05])
+            ax29.axis("off")
+            ax29.set_xlim(0,10)
+            ax29.set_ylim(0,10)
+            ax29.annotate('', xy=(2, 6), xytext=(8, 6), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+            #ax29.annotate(s='', xy=(2, 5), xytext=(8, 5), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+            ax29.text(5, 2, 'Dirección campo de juego', fontproperties=prop3, c=(1,1,1,0.5), fontsize=10, ha='center')
+            #Adding winstats logo
+            ax53 = fig.add_axes([0.82, 0.14, 0.05, 0.05])
+            url53 = "https://i.postimg.cc/R0QjGByL/sZggzUM.png"
+            response = requests.get(url53)
+            img = Image.open(BytesIO(response.content))
+            ax53.imshow(img)
+            ax53.axis("off")
+            ax53.set_facecolor("#000")
+            #st.dataframe(dfDOWN)
+            df = df[(df['EfectiveMinute'] >= EfectMinSel[0]) & (df['EfectiveMinute'] <= EfectMinSel[1])]
+            dfKK = df
+            if OptionPlotSel == 'Passes Viz':
+                df = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses')].reset_index()
+                dfKKK = df
+                dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                dfast = df[df['Event'] == 'Assists']
+                dfkey = df[df['Event'] == 'Key Passes']
+                dfpas = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses')]
+                
+                #Progressive
+                df['Beginning'] = np.sqrt(np.square(105-df['X1']) + np.square(34-df['Y1']))
+                df['Ending']    = np.sqrt(np.square(105-df['X2']) + np.square(34-df['Y2']))
+                df['Progress']  = [(df['Ending'][x]) / (df['Beginning'][x]) <= 0.8 for x in range(len(df.Beginning))]
+                
+                
+                #Filter by passes progressives
+                dfprog = df[df['Progress'] == True].reset_index()
+                dfprog = dfprog.drop(['index'], axis=1)    
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch.draw(ax=ax)
+                x1 = dfpas['X1']
+                y1 = dfpas['Y1']
+                x2 = dfpas['X2']
+                y2 = dfpas['Y2']
+                
+                x1a = dfprog['X1']
+                y1a = dfprog['Y1']
+                x2a = dfprog['X2']
+                y2a = dfprog['Y2']
+                
+                x1k = dfkey['X1']
+                y1k = dfkey['Y1']
+                x2k = dfkey['X2']
+                y2k = dfkey['Y2']
+
+                pitch.lines(x1, y1, x2, y2, cmap=get_continuous_cmap(hex_list), ax=ax, lw=2, comet=True, transparent=True) 
+                ax.scatter(x2, y2, color='#9F9F9F', edgecolors='#121214', zorder=3, lw=0.5)       
+                    
+                pitch.lines(x1a, y1a, x2a, y2a, cmap=get_continuous_cmap(hex_list2), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(x2a, y2a, color=colorviz, edgecolors='#121214', zorder=3, lw=0.5)           
+                
+                
+                pitch.lines(x1k, y1k, x2k, y2k, cmap=get_continuous_cmap(hex_list1), ax=ax, lw=2, comet=True, transparent=True, zorder=10) 
+                ax.scatter(x2k, y2k, color="#C7B200", edgecolors='#121214', zorder=5, lw=0.5)
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKK)) + " PASES COMPLETOS", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.20,0.14,0.63,0.07])
+                ax9.set_xlim(0,105)
+                ax9.set_ylim(0,20)
+                ax9.axis("off")
+                ax9.scatter(26.25, 12, marker='s', color='#9F9F9F', s=300)
+                ax9.text(26.25, 2, 'PASES EFECTIVOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(52.5, 12, marker='s', color=colorviz, s=300)
+                ax9.text(52.5, 2, 'PASES PROGRESIVOS', color=colorviz, fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(78.75, 12, marker='s', color='#C7B200', s=300)
+                ax9.text(78.75, 2, 'PASES CLAVES', color='#C7B200', fontproperties=prop2, ha='center', fontsize=9)
+
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png") 
+
+            if OptionPlotSel == 'Progressive Passes':
+                df = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses') | (df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index()
+                #dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                #Progressive
+                df['Beginning'] = np.sqrt(np.square(105-df['X1']) + np.square(34-df['Y1']))
+                df['Ending']    = np.sqrt(np.square(105-df['X2']) + np.square(34-df['Y2']))
+                df['Progress']  = [(df['Ending'][x]) / (df['Beginning'][x]) <= 0.8 for x in range(len(df.Beginning))]
+                                          
+                #Filter by passes progressives
+                dfprog = df[df['Progress'] == True].reset_index()
+                dfprog = dfprog.drop(['index'], axis=1)
+                dfprog = dfprog.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='first')
+                dfw = dfprog[(dfprog['Event'] == 'Successful passes') | (dfprog['Event'] == 'Key Passes') | (dfprog['Event'] == 'Assists') | (dfprog['Event'] == 'Successful open play crosses') | (dfprog['Event'] == 'Successful set play crosses')].reset_index(drop=True)
+                dff = dfprog[(dfprog['Event'] == 'Unsuccessful passes') | (dfprog['Event'] == 'Unsuccessful open play crosses') | (dfprog['Event'] == 'Unsuccessful set play crosses')].reset_index(drop=True)
+                
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch.draw(ax=ax)
+                
+                pitch.lines(dfw['X1'], dfw['Y1'], dfw['X2'], dfw['Y2'], cmap=get_continuous_cmap(hex_list2), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(dfw['X2'], dfw['Y2'], color=colorviz, edgecolors='#121214', zorder=3, lw=0.5)  
+
+                pitch.lines(dff['X1'], dff['Y1'], dff['X2'], dff['Y2'], cmap=get_continuous_cmap(hex_list), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(dff['X2'], dff['Y2'], color="#9F9F9F", edgecolors='#121214', zorder=3, lw=0.5)     
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfprog)) + " PASES PROGRESIVOS", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                df = dfprog.reset_index(drop=True)
+                ax9 = fig.add_axes([0.20,0.14,0.63,0.07])
+                ax9.set_xlim(0,105)
+                ax9.set_ylim(0,20)
+                ax9.axis("off")
+                ax9.scatter(32.5, 15, marker='s', color=colorviz, s=300)
+                ax9.text(32.5, 0, 'PASES\nEXITOSOS', color=colorviz, fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(72.5, 15, marker='s', color='#9F9F9F', s=300)
+                ax9.text(72.5, 0, 'PASES\nFALLADOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png") 
+            if OptionPlotSel == 'Passes Into Final Third':
+                df = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses') | (df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index()
+                df = df[(df['X1'] <= 70) & (df['X2'] >= 70)].reset_index(drop=True)
+
+                dfwin = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses')].reset_index(drop=True)
+                dffail = df[(df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index(drop=True)
+                dfKKK = df
+                dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch.draw(ax=ax)
+                pitch.lines(dfwin['X1'], dfwin['Y1'], dfwin['X2'], dfwin['Y2'], cmap=get_continuous_cmap(hex_list2), ax=ax, lw=2, comet=True, transparent=True)
+                ax.scatter(dfwin['X2'], dfwin['Y2'], color='#FF0050', edgecolors='#121214', zorder=3, lw=0.5)
+                pitch.lines(dffail['X1'], dffail['Y1'], dffail['X2'], dffail['Y2'], cmap=get_continuous_cmap(hex_list), ax=ax, lw=2, comet=True, transparent=True)
+                ax.scatter(dffail['X2'], dffail['Y2'], color='#9F9F9F', edgecolors='#121214', zorder=3, lw=0.5)
+                ax.vlines(x=70, ymin=0, ymax=68, color='w', alpha=0.3, ls='--', zorder=-1)
+                ax.add_patch(Rectangle((70, 0), 35, 68, fc="#000000", fill=True, alpha=0.7, zorder=-2))
+
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKK)) + " PASES HACIA ÚLTIMO TERCIO", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.20,0.14,0.63,0.07])
+                ax9.set_xlim(0,105)
+                ax9.set_ylim(0,20)
+                ax9.axis("off")
+                #ax9.scatter(26.25, 12, marker='s', color='#9F9F9F', s=300)
+                #ax9.text(26.25, 2, 'PASES EFECTIVOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(32.5, 12, marker='s', color=colorviz, s=300)
+                ax9.text(32.5, 2, 'PASES\nEXITOSOS', color=colorviz, fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(72.5, 12, marker='s', color='#9F9F9F', s=300)
+                ax9.text(72.5, 2, 'PASES\nFALLADOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png") 
+                #pitch.lines(x1a, y1a, x2a, y2a, cmap=get_continuous_cmap(hex_list2), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                #ax.scatter(x2a, y2a, color=colorviz, edgecolors='#121214', zorder=3, lw=0.5)
+            if OptionPlotSel == 'Passes Into Penalty Area':
+                df = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses') | (df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index()
+                # Coordenadas del cuadrilátero
+                x1_cuadrilatero, y1_cuadrilatero = 88.5, 13.84
+                x2_cuadrilatero, y2_cuadrilatero = 105, 13.84
+                x3_cuadrilatero, y3_cuadrilatero = 88.5, 54.16
+                x4_cuadrilatero, y4_cuadrilatero = 105, 54.16
+                
+                # Primera condición: X1, Y1 deben estar por fuera del cuadrilátero
+                condicion1 = (
+                    (df['X1'] < x1_cuadrilatero) |    # X1 debe ser menor que x1_cuadrilatero
+                    (df['Y1'] < y1_cuadrilatero) |    # Y1 debe ser menor que y1_cuadrilatero
+                    (df['X1'] > x4_cuadrilatero) |    # X1 debe ser mayor que x4_cuadrilatero
+                    (df['Y1'] > y3_cuadrilatero)      # Y1 debe ser mayor que y3_cuadrilatero
+                )
+                
+                # Segunda condición: X2, Y2 deben estar por dentro del cuadrilátero
+                condicion2 = (
+                    (df['X2'] >= x1_cuadrilatero) &   # X2 debe ser mayor o igual que x1_cuadrilatero
+                    (df['Y2'] >= y1_cuadrilatero) &   # Y2 debe ser mayor o igual que y1_cuadrilatero
+                    (df['X2'] <= x4_cuadrilatero) &   # X2 debe ser menor o igual que x4_cuadrilatero
+                    (df['Y2'] <= y3_cuadrilatero)     # Y2 debe ser menor o igual que y3_cuadrilatero
+                )
+                
+                # Aplicar las condiciones para filtrar el DataFrame
+                df = df[condicion1 & condicion2]
+                dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch.draw(ax=ax)
+
+                dfw = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses')].reset_index(drop=True)
+                dff = df[(df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index(drop=True)
+                
+                pitch.lines(dfw['X1'], dfw['Y1'], dfw['X2'], dfw['Y2'], cmap=get_continuous_cmap(hex_list2), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(dfw['X2'], dfw['Y2'], color=colorviz, edgecolors='#121214', zorder=3, lw=0.5)  
+
+                pitch.lines(dff['X1'], dff['Y1'], dff['X2'], dff['Y2'], cmap=get_continuous_cmap(hex_list), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(dff['X2'], dff['Y2'], color="#9F9F9F", edgecolors='#121214', zorder=3, lw=0.5)  
+                ax.vlines(x=88.5, ymin=13.84, ymax=54.16, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.vlines(x=105, ymin=13.84, ymax=54.16, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.hlines(xmin=88.5, xmax=105, y=54.16, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.hlines(xmin=88.5, xmax=105, y=13.84, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.add_patch(Rectangle((88.5, 13.84), 16.5, 40.32, fc="#000000", fill=True, alpha=0.7, zorder=-2))
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKK)) + " PASES HACIA ÁREA RIVAL", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.20,0.14,0.63,0.07])
+                ax9.set_xlim(0,105)
+                ax9.set_ylim(0,20)
+                ax9.axis("off")
+                #ax9.scatter(26.25, 12, marker='s', color='#9F9F9F', s=300)
+                #ax9.text(26.25, 2, 'PASES EFECTIVOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(32.5, 15, marker='s', color=colorviz, s=300)
+                ax9.text(32.5, 0, 'PASES\nEXITOSOS', color=colorviz, fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(72.5, 15, marker='s', color='#9F9F9F', s=300)
+                ax9.text(72.5, 0, 'PASES\nFALLADOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+                
+            if OptionPlotSel == "Passes Into Half Spaces":
+                df = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses') | (df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index()
+                dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                #df = df[(df['X1'] >= 52.5) & (df['X1'] <= 88.5)].reset_index(drop=True)
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch.draw(ax=ax)
+
+                # Coordenadas del cuadrilátero A
+                x1_cuadrilatero_A, y1_cuadrilatero_A = 52.5, 43.16
+                x2_cuadrilatero_A, y2_cuadrilatero_A = 88.5, 43.16
+                x3_cuadrilatero_A, y3_cuadrilatero_A = 52.5, 54.16
+                x4_cuadrilatero_A, y4_cuadrilatero_A = 88.5, 54.16
+                
+                # Primera condición: X1, Y1 deben estar por fuera del cuadrilátero
+                condicion1_A = (
+                    (df['X1'] < x1_cuadrilatero_A) |    # X1 debe ser menor que x1_cuadrilatero
+                    (df['Y1'] < y1_cuadrilatero_A) |    # Y1 debe ser menor que y1_cuadrilatero
+                    (df['X1'] > x4_cuadrilatero_A) |    # X1 debe ser mayor que x4_cuadrilatero
+                    (df['Y1'] > y3_cuadrilatero_A)      # Y1 debe ser mayor que y3_cuadrilatero
+                )
+                
+                # Segunda condición: X2, Y2 deben estar por dentro del cuadrilátero
+                condicion2_A = (
+                    (df['X2'] >= x1_cuadrilatero_A) &   # X2 debe ser mayor o igual que x1_cuadrilatero
+                    (df['Y2'] >= y1_cuadrilatero_A) &   # Y2 debe ser mayor o igual que y1_cuadrilatero
+                    (df['X2'] <= x4_cuadrilatero_A) &   # X2 debe ser menor o igual que x4_cuadrilatero
+                    (df['Y2'] <= y3_cuadrilatero_A)     # Y2 debe ser menor o igual que y3_cuadrilatero
+                )
+
+                # Coordenadas del cuadrilátero B
+                x1_cuadrilatero_B, y1_cuadrilatero_B = 52.5, 13.84
+                x2_cuadrilatero_B, y2_cuadrilatero_B = 88.5, 13.84
+                x3_cuadrilatero_B, y3_cuadrilatero_B = 52.5, 24.84
+                x4_cuadrilatero_B, y4_cuadrilatero_B = 88.5, 24.84
+                
+                # Primera condición: X1, Y1 deben estar por fuera del cuadrilátero
+                condicion1_B = (
+                    (df['X1'] < x1_cuadrilatero_B) |    # X1 debe ser menor que x1_cuadrilatero
+                    (df['Y1'] < y1_cuadrilatero_B) |    # Y1 debe ser menor que y1_cuadrilatero
+                    (df['X1'] > x4_cuadrilatero_B) |    # X1 debe ser mayor que x4_cuadrilatero
+                    (df['Y1'] > y3_cuadrilatero_B)      # Y1 debe ser mayor que y3_cuadrilatero
+                )
+                
+                # Segunda condición: X2, Y2 deben estar por dentro del cuadrilátero
+                condicion2_B = (
+                    (df['X2'] >= x1_cuadrilatero_B) &   # X2 debe ser mayor o igual que x1_cuadrilatero
+                    (df['Y2'] >= y1_cuadrilatero_B) &   # Y2 debe ser mayor o igual que y1_cuadrilatero
+                    (df['X2'] <= x4_cuadrilatero_B) &   # X2 debe ser menor o igual que x4_cuadrilatero
+                    (df['Y2'] <= y3_cuadrilatero_B)     # Y2 debe ser menor o igual que y3_cuadrilatero
+                )
+                
+                # Aplicar las condiciones para filtrar el DataFrame
+                df = df[(condicion1_A & condicion2_A) | (condicion1_B & condicion2_B)].reset_index(drop=True)
+
+                dfw = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses')].reset_index(drop=True)
+                dff = df[(df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index(drop=True)
+                
+                pitch.lines(dfw['X1'], dfw['Y1'], dfw['X2'], dfw['Y2'], cmap=get_continuous_cmap(hex_list2), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(dfw['X2'], dfw['Y2'], color=colorviz, edgecolors='#121214', zorder=3, lw=0.5)  
+                pitch.lines(dff['X1'], dff['Y1'], dff['X2'], dff['Y2'], cmap=get_continuous_cmap(hex_list), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(dff['X2'], dff['Y2'], color="#9F9F9F", edgecolors='#121214', zorder=3, lw=0.5)
+                
+                ax.vlines(x=52.5, ymin=43.16, ymax=54.16, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.vlines(x=88.5, ymin=43.16, ymax=54.16, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.hlines(xmin=52.5, xmax=88.5, y=54.16, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.hlines(xmin=52.5, xmax=88.5, y=43.16, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+
+                ax.vlines(x=52.5, ymin=13.84, ymax=24.84, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.vlines(x=88.5, ymin=13.84, ymax=24.84, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.hlines(xmin=52.5, xmax=88.5, y=24.84, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                ax.hlines(xmin=52.5, xmax=88.5, y=13.84, color='w', alpha=1, ls='--', lw=2, zorder=-1)
+                #ax.add_patch(Rectangle((88.5, 13.84), 16.5, 40.32, fc="#000000", fill=True, alpha=0.7, zorder=-2))
+                ax.add_patch(Rectangle((52.5, 13.84), 36, 11, fc="#000000", fill=True, alpha=0.7, zorder=-2))
+                ax.add_patch(Rectangle((52.5, 43.16), 36, 11, fc="#000000", fill=True, alpha=0.7, zorder=-2))
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(df)) + " PASES HACIA ESPACIOS INTERMEDIOS", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.20,0.14,0.63,0.07])
+                ax9.set_xlim(0,105)
+                ax9.set_ylim(0,20)
+                ax9.axis("off")
+                #ax9.scatter(26.25, 12, marker='s', color='#9F9F9F', s=300)
+                #ax9.text(26.25, 2, 'PASES EFECTIVOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(32.5, 15, marker='s', color=colorviz, s=300)
+                ax9.text(32.5, 0, 'PASES\nEXITOSOS', color=colorviz, fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(72.5, 15, marker='s', color='#9F9F9F', s=300)
+                ax9.text(72.5, 0, 'PASES\nFALLADOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+            if OptionPlotSel == 'Long Passes':
+                df = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses') | (df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index()
+                dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                df['Distance'] = np.sqrt((df['X2'] - df['X1'])**2 + (df['Y2'] - df['Y1'])**2)
+                df = df[df['Distance'] >= 32].reset_index(drop=True)
+                #df = df.drop(['Distance'], axis=1)
+
+                
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch.draw(ax=ax)
+        
+
+                dfw = df[(df['Event'] == 'Successful passes') | (df['Event'] == 'Key Passes') | (df['Event'] == 'Assists') | (df['Event'] == 'Successful open play crosses') | (df['Event'] == 'Successful set play crosses')].reset_index(drop=True)
+                dff = df[(df['Event'] == 'Unsuccessful passes') | (df['Event'] == 'Unsuccessful open play crosses') | (df['Event'] == 'Unsuccessful set play crosses')].reset_index(drop=True)
+                
+                pitch.lines(dfw['X1'], dfw['Y1'], dfw['X2'], dfw['Y2'], cmap=get_continuous_cmap(hex_list2), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(dfw['X2'], dfw['Y2'], color=colorviz, edgecolors='#121214', zorder=3, lw=0.5)  
+                pitch.lines(dff['X1'], dff['Y1'], dff['X2'], dff['Y2'], cmap=get_continuous_cmap(hex_list), ax=ax, lw=2, comet=True, transparent=True, zorder=3) 
+                ax.scatter(dff['X2'], dff['Y2'], color="#9F9F9F", edgecolors='#121214', zorder=3, lw=0.5)
+
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(df)) + " PASES LARGOS", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.20,0.14,0.63,0.07])
+                ax9.set_xlim(0,105)
+                ax9.set_ylim(0,20)
+                ax9.axis("off")
+                #ax9.scatter(26.25, 12, marker='s', color='#9F9F9F', s=300)
+                #ax9.text(26.25, 2, 'PASES EFECTIVOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(32.5, 15, marker='s', color=colorviz, s=300)
+                ax9.text(32.5, 0, 'PASES\nEXITOSOS', color=colorviz, fontproperties=prop2, ha='center', fontsize=9)
+                ax9.scatter(72.5, 15, marker='s', color='#9F9F9F', s=300)
+                ax9.text(72.5, 0, 'PASES\nFALLADOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+        with pltmain12:
+            st.dataframe(df[['ActionID', 'Event', 'Minute', 'EfectiveMinute', 'PlayerID', 'Player', 'Team', 'X1', 'Y1', 'X2', 'Y2']])
