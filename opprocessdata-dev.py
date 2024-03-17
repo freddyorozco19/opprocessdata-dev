@@ -259,15 +259,16 @@ if menu_id == "ExploreTeamData":
                 pitch = VerticalPitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
             else:
                 pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+                #Adding directon arrow
+                ax29 = fig.add_axes([0.368,0.22,0.3,0.05])
+                ax29.axis("off")
+                ax29.set_xlim(0,10)
+                ax29.set_ylim(0,10)
+                ax29.annotate('', xy=(2, 6), xytext=(8, 6), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+                #ax29.annotate(s='', xy=(2, 5), xytext=(8, 5), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+                ax29.text(5, 2, 'Dirección campo de juego', fontproperties=prop3, c=(1,1,1,0.5), fontsize=10, ha='center')
             pitch.draw(ax=ax)
-            #Adding directon arrow
-            ax29 = fig.add_axes([0.368,0.22,0.3,0.05])
-            ax29.axis("off")
-            ax29.set_xlim(0,10)
-            ax29.set_ylim(0,10)
-            ax29.annotate('', xy=(2, 6), xytext=(8, 6), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
-            #ax29.annotate(s='', xy=(2, 5), xytext=(8, 5), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
-            ax29.text(5, 2, 'Dirección campo de juego', fontproperties=prop3, c=(1,1,1,0.5), fontsize=10, ha='center')
+            
             #Adding winstats logo
             ax53 = fig.add_axes([0.82, 0.14, 0.05, 0.05])
             url53 = "https://i.postimg.cc/R0QjGByL/sZggzUM.png"
