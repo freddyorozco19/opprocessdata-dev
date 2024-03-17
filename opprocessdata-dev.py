@@ -310,7 +310,7 @@ if menu_id == "ExploreTeamData":
                 #df = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
                 #dfKKcleaned = df
 
-                ax.scatter(df9['X1'], df9['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
+                ax.scatter(df['X1'], df['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
                 
                 #Adding title
                 ax9 = fig.add_axes([0.17,0.16,0.20,0.07])
