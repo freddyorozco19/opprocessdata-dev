@@ -212,9 +212,6 @@ if menu_id == "ExploreTeamData":
         with st.form(key='form4'):
             uploaded_file = st.file_uploader("Choose a excel file", type="xlsx")
 
-            TableName = st.text_input("Ingrese Nombre del Archivo",
-                                      key="filename"
-                                      )
             DataMode = st.checkbox("Activate calculated columns")
             submit_button2 = st.form_submit_button(label='Aceptar')
     st.title("EXPLORE DATA")
@@ -224,3 +221,8 @@ if menu_id == "ExploreTeamData":
     dfORIG = df
     st.dataframe(df)
     st.divider()
+
+    colmen01, colmen02, colmen03 = st.columns(3)
+    with colmen01:
+        TeamList = df['Team'].drop_duplicates.tolist()
+        TeamSelColMen = st.selectbox('Choose team:' TeamList)
