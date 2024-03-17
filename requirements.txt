@@ -22,3 +22,4 @@ xlsxwriter
 scikit-learn
 seaborn
 scraperfc
+requests
