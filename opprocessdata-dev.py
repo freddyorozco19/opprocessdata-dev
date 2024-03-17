@@ -1098,8 +1098,9 @@ if menu_id == "DataScraping":
         
         st.markdown("""---""")
         with st.form(key='form5'):
-            uploaded_file = st.file_uploader("Choose a excel file", type="xlsx")
+            MatchURL = st.text_input("Match URL", key=matchurl)
 
             DataMode = st.checkbox("Activate calculated columns")
             submit_button2 = st.form_submit_button(label='Aceptar')
     st.title("DATA SCRAPING")
+    sofascore = sfc.Sofascore()
