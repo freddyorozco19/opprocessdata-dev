@@ -335,14 +335,13 @@ if menu_id == "ExploreTeamData":
                 ax.scatter(df['X1'], df['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
                 ax.set_ylim(52.3,110)
                 #Adding title
-                ax9 = fig.add_axes([0.17,0.16,0.20,0.07])
+                ax9 = fig.add_axes([0.16,0.15,0.20,0.07])
                 ax9.axis("off")
                 ax9.set_xlim(0,10)
                 ax9.set_ylim(0,10)
                 ax9.scatter(2, 5, s=120, color=colorviz, edgecolors='#FFFFFF', lw=1)
                 ax9.text(2, -0.5, 'ACCIONES \nREALIZADAS', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
-                ax9.scatter(8, 5, s=320, color=colorviz, edgecolors='#FFFFFF', lw=1, ls='--', marker='h')
-                ax9.text(8, -0.5, 'TERRITORIO\nRECURRENTE', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
+
                 st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
             if OptionPlotSel == 'Territory Actions': 
                 
