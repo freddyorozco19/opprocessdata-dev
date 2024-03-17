@@ -335,7 +335,7 @@ if menu_id == "ExploreTeamData":
                 ax.scatter(df['X1'], df['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
                 ax.set_ylim(52.3,110)
                 #Adding title
-                ax9 = fig.add_axes([0.16,0.15,0.20,0.07])
+                ax9 = fig.add_axes([0.15,0.13,0.20,0.07])
                 ax9.axis("off")
                 ax9.set_xlim(0,10)
                 ax9.set_ylim(0,10)
