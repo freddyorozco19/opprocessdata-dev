@@ -21,3 +21,4 @@ openpyxl
 xlsxwriter
 scikit-learn
 seaborn
+scraperfc
