@@ -535,12 +535,12 @@ if menu_id == "ExploreTeamData":
                             text=f'{action_pct:.0%}',
                             ha='center',
                             va='center',
-                            color='k',
+                            color='w',
                             fontproperties=prop2,
                             size=20
                         )
                         text_.set_path_effects(
-                            [path_effects.Stroke(linewidth=1.0, foreground='w'), path_effects.Normal()]
+                            [path_effects.Stroke(linewidth=1.0, foreground='k'), path_effects.Normal()]
                         )
 
 
