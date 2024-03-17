@@ -523,7 +523,7 @@ if menu_id == "ExploreTeamData":
                     x_lim = [zone_areas[zone]['x_lower_bound'], zone_areas[zone]['x_upper_bound']]
                     y1 = zone_areas[zone]['y_lower_bound']
                     y2 = zone_areas[zone]['y_upper_bound']
-                    ax2.fill_between(
+                    ax.fill_between(
                         x=x_lim, 
                         y1=y1, y2=y2, 
                         color=colorviz, alpha=((action_pct/max_value)),
@@ -531,7 +531,7 @@ if menu_id == "ExploreTeamData":
                     if action_pct > 0.005:
                         x_pos = x_lim[0] + abs(x_lim[0] - x_lim[1])/2
                         y_pos = y1 + abs(y1 - y2)/2
-                        text_ = ax2.annotate(
+                        text_ = ax.annotate(
                             xy=(x_pos, y_pos),
                             text=f'{action_pct:.0%}',
                             ha='center',
