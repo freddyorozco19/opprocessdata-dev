@@ -32,6 +32,7 @@ import requests
 from PIL import Image
 from matplotlib.patches import Rectangle
 import math
+import ScraperFC as sfc
 
 ############################################################################################################################################################################################################################
 def split_minute(minute_str):
@@ -177,7 +178,7 @@ st.markdown(
 # specify the primary menu definition
 menu_data = [
     {'id': "ExploreTeamData", 'label':"Explore Data"},
-    {'id': "ProMatchStats", 'label':"ProMatchStats"}
+    {'id': "DataScraping", 'label':"DataScraping"}
     #{'id': "Dashboard", 'icon': "fas fa-tachometer-alt", 'label':"Dashboard",'ttip':"I'm the Dashboard tooltip!"} #can add a tooltip message]
 ]
 over_theme = {'txc_inactive': '#FFFFFF'}
@@ -1081,3 +1082,24 @@ if menu_id == "ExploreTeamData":
                 st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
         with pltmain12:
             st.dataframe(df[['ActionID', 'Event', 'Minute', 'EfectiveMinute', 'PlayerID', 'Player', 'Team', 'X1', 'Y1', 'X2', 'Y2']])
+if menu_id == "DataScraping":
+    with st.sidebar:
+        with open("Resources/win.png", "rb") as f:
+            data = base64.b64encode(f.read()).decode("utf-8")
+        
+            st.sidebar.markdown(
+                f"""
+                <div style="display:table;margin-top:-20%">
+                    <img src="data:image/png;base64,{data}" width="300">
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        
+        st.markdown("""---""")
+        with st.form(key='form5'):
+            uploaded_file = st.file_uploader("Choose a excel file", type="xlsx")
+
+            DataMode = st.checkbox("Activate calculated columns")
+            submit_button2 = st.form_submit_button(label='Aceptar')
+    st.title("DATA SCRAPING")
