@@ -238,7 +238,7 @@ if menu_id == "ExploreTeamData":
     if PlotVizSelExpData == "Acciones":
         pltmnop01, pltmnop02, pltmnop03 = st.columns(3)
         with pltmnop01:
-            OptionPlot = ['Touches Map', 'Touches Opponent Field', 'Territory Actions', 'Heatmap - Zones', 'Heatmap - Gaussian', 'Heatmap - Kernel']
+            OptionPlot = ['Touches Map', 'Touches Opponent Field', 'Territory Actions', 'Heatmap - Opponnent Field', 'Heatmap - Zones', 'Heatmap - Gaussian', 'Heatmap - Kernel', 'Field Tilt']
             OptionPlotSel = st.selectbox('Seleccionar tipo gráfico:', OptionPlot)
         with pltmnop02:
             EfectMinSel = st.slider('Seleccionar rango de partido:', 0, MaxAddMin, (0, MaxAddMin))
