@@ -238,7 +238,7 @@ if menu_id == "ExploreTeamData":
     if PlotVizSelExpData == "Acciones":
         pltmnop01, pltmnop02, pltmnop03 = st.columns(3)
         with pltmnop01:
-            OptionPlot = ['Territory Actions', 'Heatmap - Zones', 'Heatmap - Gaussian', 'Heatmap - Kernel']
+            OptionPlot = ['Touches Map', 'Territory Actions', 'Heatmap - Zones', 'Heatmap - Gaussian', 'Heatmap - Kernel']
             OptionPlotSel = st.selectbox('Seleccionar tipo gráfico:', OptionPlot)
         with pltmnop02:
             EfectMinSel = st.slider('Seleccionar rango de partido:', 0, MaxAddMin, (0, MaxAddMin))
@@ -305,6 +305,23 @@ if menu_id == "ExploreTeamData":
                 cmaps = LinearSegmentedColormap.from_list('my_colormap', colors, N=256)
             #df = dfKK.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
             #st.write(df)
+            if OptionPlotSel == 'Touches Map': 
+                
+                #df = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                #dfKKcleaned = df
+
+                ax.scatter(df9['X1'], df9['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
+                
+                #Adding title
+                ax9 = fig.add_axes([0.17,0.16,0.20,0.07])
+                ax9.axis("off")
+                ax9.set_xlim(0,10)
+                ax9.set_ylim(0,10)
+                ax9.scatter(2, 5, s=120, color=colorviz, edgecolors='#FFFFFF', lw=1)
+                ax9.text(2, -0.5, 'ACCIONES \nREALIZADAS', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
+                ax9.scatter(8, 5, s=320, color=colorviz, edgecolors='#FFFFFF', lw=1, ls='--', marker='h')
+                ax9.text(8, -0.5, 'TERRITORIO\nRECURRENTE', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
             if OptionPlotSel == 'Territory Actions': 
                 
                 #df = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
