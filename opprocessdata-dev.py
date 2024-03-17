@@ -329,10 +329,11 @@ if menu_id == "ExploreTeamData":
                 
                 #df = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
                 #dfKKcleaned = df
+                df.rename(columns={'X1':'Y1', 'Y1':'X1'}, inplace=True)
                 df = df[df['Y1'] >= 52.5].reset_index()
 
                 ax.scatter(df['X1'], df['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
-                
+                ax.set_ylim(52.3,110)
                 #Adding title
                 ax9 = fig.add_axes([0.17,0.16,0.20,0.07])
                 ax9.axis("off")
