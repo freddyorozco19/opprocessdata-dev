@@ -218,11 +218,11 @@ if menu_id == "ExploreTeamData":
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
 
-    #dfORIG = df
+    dfORIG = df
     st.dataframe(df)
     st.divider()
-
-    colmen01, colmen02, colmen03 = st.columns(3)
-    with colmen01:
-        TeamList = df['Team'].drop_duplicates.tolist()
-        TeamSelColMen = st.selectbox('Choose team:', TeamList)
+    menuoptexpdata01, menuoptexpdata02, menuoptexpdata03 = st.columns(3)
+    with menuoptexpdata01:
+        TeamsOption = df['Team'].drop_duplicates().tolist()
+        TeamSelExpData = st.selectbox("Seleccionar Equipo:", TeamsOption)
+        df = df[df['Team'] == TeamSelExpData].reset_index(drop=True)
