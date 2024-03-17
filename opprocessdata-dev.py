@@ -226,3 +226,296 @@ if menu_id == "ExploreTeamData":
         TeamsOption = df['Team'].drop_duplicates().tolist()
         TeamSelExpData = st.selectbox("Seleccionar Equipo:", TeamsOption)
         df = df[df['Team'] == TeamSelExpData].reset_index(drop=True)
+    with menuoptexpdata02:
+        PlotVizOptionsd = ['Acciones', 'Pases', 'Remates']
+        PlotVizSelExpData = st.selectbox("Seleccionar Gráfico:", PlotVizOptionsd)
+    with menuoptexpdata03:
+        PlotVizOption = ['Acciones', 'Pases', 'Remates', 'Recuperaciones']
+        PlotVizSelExpData = st.selectbox("Seleccionar Gráfico:", PlotVizOption)
+
+    st.divider()
+    MaxAddMin = df['EfectiveMinute'].max()
+    if PlotVizSelExpData == "Acciones":
+        pltmnop01, pltmnop02, pltmnop03 = st.columns(3)
+        with pltmnop01:
+            OptionPlot = ['Territory Actions', 'Heatmap - Zones', 'Heatmap - Gaussian', 'Heatmap - Kernel']
+            OptionPlotSel = st.selectbox('Seleccionar tipo gráfico:', OptionPlot)
+        with pltmnop02:
+            EfectMinSel = st.slider('Seleccionar rango de partido:', 0, MaxAddMin, (0, MaxAddMin))
+        if OptionPlotSel == 'Territory Actions': 
+            with pltmnop03:
+                ColorOptionSel = st.color_picker('Selecciona color:', '#FF0046')
+                colorviz = ColorOptionSel
+        else:
+            with pltmnop03:
+                SelOpt = ['WinStats', 'FD']
+                ColorOptionSel = st.selectbox('Selecciona color:', SelOpt)
+        pltmain01, pltmain02 = st.columns(2)
+        with pltmain01:
+            fig, ax = mplt.subplots(figsize=(8, 8), dpi = 800)
+            ax.axis("off")
+            fig.patch.set_visible(False)
+            pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+            pitch.draw(ax=ax)
+            #Adding directon arrow
+            ax29 = fig.add_axes([0.368,0.22,0.3,0.05])
+            ax29.axis("off")
+            ax29.set_xlim(0,10)
+            ax29.set_ylim(0,10)
+            ax29.annotate('', xy=(2, 6), xytext=(8, 6), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+            #ax29.annotate(s='', xy=(2, 5), xytext=(8, 5), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+            ax29.text(5, 2, 'Dirección campo de juego', fontproperties=prop3, c=(1,1,1,0.5), fontsize=10, ha='center')
+            #Adding winstats logo
+            ax53 = fig.add_axes([0.82, 0.14, 0.05, 0.05])
+            url53 = "https://i.postimg.cc/R0QjGByL/sZggzUM.png"
+            response = requests.get(url53)
+            img = Image.open(BytesIO(response.content))
+            ax53.imshow(img)
+            ax53.axis("off")
+            ax53.set_facecolor("#000")
+            #st.dataframe(dfDOWN)
+            df = df[(df['EfectiveMinute'] >= EfectMinSel[0]) & (df['EfectiveMinute'] <= EfectMinSel[1])]
+            dfKK = df
+
+            if ColorOptionSel == 'WinStats':
+                hex_list2 = ['#121214', '#D81149', '#FF0050']
+                hex_list = ['#121214', '#545454', '#9F9F9F']
+                colorviz = "#FF0050"
+                # Definir los colores base con transparencias diferentes
+                red = [0.0705882352941176, 0.0705882352941176, 0.0784313725490196, 0]   # 121214
+                green = [0.6, 0.1098039215686275, 0.2431372549019608, 0.6]   # 991C3E
+                blue = [1, 0, 0.2745098039215686, 0.8]   # FF0046
+                # Crear una lista de los colores y las posiciones en el colormap
+                colors = [red, green, blue]
+                positions = [0, 0.5, 1]
+                # Crear el colormap continuo con transparencias
+                cmaps = LinearSegmentedColormap.from_list('my_colormap', colors, N=256)
+            if ColorOptionSel == 'FD':
+                hex_list2 = ['#5A9212', '#70BD0C', '#83E604']
+                hex_list = ['#121214', '#545454', '#9F9F9F']
+                colorviz = "#83E604"
+                # Definir los colores base con transparencias diferentes
+                red = [0.0705882352941176, 0.0705882352941176, 0.0784313725490196, 0.2]   # 121214
+                green = [0.3215686274509804, 0.5215686274509804, 0.0666666666666667, 0.5]   # 0059FF
+                blue = [0.5137254901960784, 0.9019607843137255, 0.0156862745098039, 0.70]   # 3A7FFF
+                # Crear una lista de los colores y las posiciones en el colormap
+                colors = [red, green, blue]
+                positions = [0, 0.5, 1]
+                # Crear el colormap continuo con transparencias
+                cmaps = LinearSegmentedColormap.from_list('my_colormap', colors, N=256)
+            #df = dfKK.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+            #st.write(df)
+            if OptionPlotSel == 'Territory Actions': 
+                
+                #df = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                #dfKKcleaned = df
+                
+                df = df[df['Event'] != 'Assists'].reset_index(drop=True)
+                dfKKcleaned = df
+                scaler  = StandardScaler()
+                defpoints1 = df[['X1', 'Y1']].values
+                defpoints2 = scaler.fit_transform(defpoints1)
+                df2 = pd.DataFrame(defpoints2, columns = ['Xstd', 'Ystd'])
+                df3 = pd.concat([df, df2], axis=1)
+                df5=df3
+                df3 = df3[df3['Xstd'] <= 1]
+                df3 = df3[df3['Xstd'] >= -1]
+                df3 = df3[df3['Ystd'] <= 1]
+                df3 = df3[df3['Ystd'] >= -1].reset_index()
+                df9 = df
+                df = df3
+                defpoints = df[['X1', 'Y1']].values
+                #st.write(defpoints)
+
+                hull = ConvexHull(df[['X1','Y1']])        
+                ax.scatter(df9['X1'], df9['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
+                #Loop through each of the hull's simplices
+                for simplex in hull.simplices:
+                    #Draw a black line between each
+                    ax.plot(defpoints[simplex, 0], defpoints[simplex, 1], '#BABABA', lw=2, zorder = 1, ls='--')
+                ax.fill(defpoints[hull.vertices,0], defpoints[hull.vertices,1], colorviz, alpha=0.7)
+                meanposx = df9['X1'].mean()
+                meanposy = df9['Y1'].mean()
+                ax.scatter(meanposx, meanposy, s=1000, color="w", edgecolors=colorviz, lw=2.5, zorder=25, alpha=0.95)
+                names = PlayerSelExpData.split()
+                iniciales = ""
+                for name in names:
+                   iniciales += name[0] 
+                #names_iniciales = names_iniciales.squeeze().tolist()
+                ax.text(meanposx, meanposy, iniciales, color='k', fontproperties=prop2, fontsize=13, zorder=34, ha='center', va='center')
+                ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKcleaned)) + " TOQUES", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                #Adding title
+                ax9 = fig.add_axes([0.17,0.16,0.20,0.07])
+                ax9.axis("off")
+                ax9.set_xlim(0,10)
+                ax9.set_ylim(0,10)
+                ax9.scatter(2, 5, s=120, color=colorviz, edgecolors='#FFFFFF', lw=1)
+                ax9.text(2, -0.5, 'ACCIONES \nREALIZADAS', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
+                ax9.scatter(8, 5, s=320, color=colorviz, edgecolors='#FFFFFF', lw=1, ls='--', marker='h')
+                ax9.text(8, -0.5, 'TERRITORIO\nRECURRENTE', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+            elif OptionPlotSel == 'Heatmap - Zones':
+
+                df = df[df['Event'] != 'Assists'].reset_index(drop=True)
+                dfKKcleaned = df
+               
+                path_eff = [path_effects.Stroke(linewidth=2, foreground='black'), path_effects.Normal()]
+                bin_statistic = pitch.bin_statistic_positional(df.X1, df.Y1, statistic='count', positional='full', normalize=True)
+                pitch.heatmap_positional(bin_statistic, ax=ax, cmap=cmaps, edgecolors='#524F50', linewidth=1)
+                pitch.scatter(df.X1, df.Y1, c='w', s=15, alpha=0.02, ax=ax)
+                labels = pitch.label_heatmap(bin_statistic, color='#f4edf0', fontsize=14, fontproperties=prop2, ax=ax, ha='center', va='center', str_format='{:.0%}', path_effects=path_eff)
+                ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKcleaned)) + " TOQUES", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.14,0.15,0.20,0.07])
+                ax9.scatter(6.75,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=1.0)
+                ax9.scatter(5.00,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=0.6)
+                ax9.scatter(3.25,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=0.2)
+                ax9.text(5, 0, '-  ACCIONES REALIZADAS  +', c='w', fontproperties=prop2, fontsize=9, ha='center')
+                ax9.axis("off")
+                ax9.set_xlim(0,10)
+                ax9.set_ylim(0,10)
+
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+            elif OptionPlotSel == 'Heatmap - Gaussian':
+                df = df[df['Event'] != 'Assists'].reset_index(drop=True)
+                dfKKcleaned = df
+                
+                bin_statistic = pitch.bin_statistic(df['X1'], df['Y1'], statistic='count', bins=(120, 80))
+                bin_statistic['statistic'] = gaussian_filter(bin_statistic['statistic'], 4)
+                pcm = pitch.heatmap(bin_statistic, ax=ax, cmap=cmaps, edgecolors=(0,0,0,0), zorder=-2)    
+                ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKcleaned)) + " TOQUES", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.14,0.15,0.20,0.07])
+                ax9.scatter(6.75,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=1.0)
+                ax9.scatter(5.00,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=0.6)
+                ax9.scatter(3.25,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=0.2)
+                ax9.text(5, 0, '-  ACCIONES REALIZADAS  +', c='w', fontproperties=prop2, fontsize=9, ha='center')
+                ax9.axis("off")
+                ax9.set_xlim(0,10)
+                ax9.set_ylim(0,10)
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+            elif OptionPlotSel == 'Heatmap - Kernel':
+                df = df[df['Event'] != 'Assists'].reset_index(drop=True)
+                dfKKcleaned = df
+                #bin_statistic = pitch.bin_statistic(df['X1'], df['Y1'], statistic='count', bins=(120, 80))
+                #bin_statistic['statistic'] = gaussian_filter(bin_statistic['statistic'], 4)
+                kde = pitch.kdeplot(dfKKcleaned.X1, dfKKcleaned.Y1, ax=ax,
+                    # fill using 100 levels so it looks smooth
+                    fill=True, levels=500,
+                    # shade the lowest area so it looks smooth
+                    # so even if there are no events it gets some color
+                    thresh=0,
+                    cut=2, alpha=0.7, zorder=-2,  # extended the cut so it reaches the bottom edge
+                    cmap=cmaps)
+
+                
+                #pcm = pitch.heatmap(bin_statistic, ax=ax, cmap=cmaps, edgecolors=(0,0,0,0), zorder=-2)    
+                ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKcleaned)) + " TOQUES", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.14,0.15,0.20,0.07])
+                ax9.scatter(6.75,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=1.0)
+                ax9.scatter(5.00,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=0.6)
+                ax9.scatter(3.25,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=0.2)
+                ax9.text(5, 0, '-  ACCIONES REALIZADAS  +', c='w', fontproperties=prop2, fontsize=9, ha='center')
+                ax9.axis("off")
+                ax9.set_xlim(0,10)
+                ax9.set_ylim(0,10)
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+                
+        with pltmain02:
+            st.dataframe(dfKK[['ActionID', 'Event', 'Minute', 'EfectiveMinute',  'PlayerID', 'Player', 'Team', 'X1', 'Y1', 'X2', 'Y2']])
+    if PlotVizSelExpData == "Remates":
+        pltmnop01, pltmnop02, pltmnop03 = st.columns(3)
+        with pltmnop01:
+            OptionPlot = ['Shots Map', 'Shots Heatmap - Zones', 'Shots Heatmap - Gaussian']
+            OptionPlotSel = st.selectbox('Seleccionar tipo gráfico:', OptionPlot)
+        with pltmnop02:
+            ListMatchs = df['MatchID'].drop_duplicates().tolist()
+            ListMatchSel = st.multiselect('Seleccionar partidos:', ListMatchs)
+            
+        if OptionPlotSel == 'Shots Map': 
+            with pltmnop03:
+                ColorOptionSel = st.color_picker('Selecciona color:', '#FF0046')
+                colorviz = ColorOptionSel
+        else:
+            with pltmnop03:
+                SelOpt = ['WinStats', 'FD']
+                ColorOptionSel = st.selectbox('Selecciona color:', SelOpt)
+        pltmain01, pltmain02 = st.columns(2)
+        with pltmain01:
+            
+            fig, ax = mplt.subplots(figsize=(8, 8), dpi = 800)
+            ax.axis("off")
+            fig.patch.set_visible(False)
+            pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+            pitch.draw(ax=ax)
+            #Adding directon arrow
+            ax29 = fig.add_axes([0.368,0.22,0.3,0.05])
+            ax29.axis("off")
+            ax29.set_xlim(0,10)
+            ax29.set_ylim(0,10)
+            ax29.annotate('', xy=(2, 6), xytext=(8, 6), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+            #ax29.annotate(s='', xy=(2, 5), xytext=(8, 5), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+            ax29.text(5, 2, 'Dirección campo de juego', fontproperties=prop3, c=(1,1,1,0.5), fontsize=10, ha='center')
+            #Adding winstats logo
+            ax53 = fig.add_axes([0.82, 0.14, 0.05, 0.05])
+            url53 = "https://i.postimg.cc/R0QjGByL/sZggzUM.png"
+            response = requests.get(url53)
+            img = Image.open(BytesIO(response.content))
+            ax53.imshow(img)
+            ax53.axis("off")
+            ax53.set_facecolor("#000")
+            #st.dataframe(dfDOWN)
+            #df = df[(df['EfectiveMinute'] >= EfectMinSel[0]) & (df['EfectiveMinute'] <= EfectMinSel[1])]
+            
+            df = df[(df['Event'] == 'Goals') | (df['Event'] == 'Shots on target') | (df['Event'] == 'Shots off target') | (df['Event'] == 'Blocks')].reset_index(drop=True)
+            df = df[df['MatchID'].isin(ListMatchSel)]
+            dfKK = df
+            if ColorOptionSel == 'WinStats':
+                hex_list2 = ['#121214', '#D81149', '#FF0050']
+                hex_list = ['#121214', '#545454', '#9F9F9F']
+                colorviz = "#FF0050"
+                # Definir los colores base con transparencias diferentes
+                red = [0.0705882352941176, 0.0705882352941176, 0.0784313725490196, 0]   # 121214
+                green = [0.6, 0.1098039215686275, 0.2431372549019608, 0.6]   # 991C3E
+                blue = [1, 0, 0.2745098039215686, 0.8]   # FF0046
+                # Crear una lista de los colores y las posiciones en el colormap
+                colors = [red, green, blue]
+                positions = [0, 0.5, 1]
+                # Crear el colormap continuo con transparencias
+                cmaps = LinearSegmentedColormap.from_list('my_colormap', colors, N=256)
+            if ColorOptionSel == 'FD':
+                hex_list2 = ['#5A9212', '#70BD0C', '#83E604']
+                hex_list = ['#121214', '#545454', '#9F9F9F']
+                colorviz = "#83E604"
+                # Definir los colores base con transparencias diferentes
+                red = [0.0705882352941176, 0.0705882352941176, 0.0784313725490196, 0.2]   # 121214
+                green = [0.3215686274509804, 0.5215686274509804, 0.0666666666666667, 0.5]   # 0059FF
+                blue = [0.5137254901960784, 0.9019607843137255, 0.0156862745098039, 0.70]   # 3A7FFF
+                # Crear una lista de los colores y las posiciones en el colormap
+                colors = [red, green, blue]
+                positions = [0, 0.5, 1]
+                # Crear el colormap continuo con transparencias
+                cmaps = LinearSegmentedColormap.from_list('my_colormap', colors, N=256)
+            #df = dfKK.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+            #st.write(df)
+            if OptionPlotSel == 'Shots Map': 
+                
+                #df = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                #dfKKcleaned = df
+                
+                #df = df[df['Event'] != 'Assists'].reset_index(drop=True)
+                dfKK = df
+                  
+                ax.scatter(df['X1'], df['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
+               
+                ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKK)) + " TOQUES", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                #Adding title
+                ax9 = fig.add_axes([0.17,0.16,0.20,0.07])
+                ax9.axis("off")
+                ax9.set_xlim(0,10)
+                ax9.set_ylim(0,10)
+                ax9.scatter(2, 5, s=120, color=colorviz, edgecolors='#FFFFFF', lw=1)
+                ax9.text(2, -0.5, 'ACCIONES \nREALIZADAS', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
+                ax9.scatter(8, 5, s=320, color=colorviz, edgecolors='#FFFFFF', lw=1, ls='--', marker='h')
+                ax9.text(8, -0.5, 'TERRITORIO\nRECURRENTE', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+        with pltmain02:
+            st.dataframe(dfKK[['ActionID', 'Matchday', 'MatchID', 'Event', 'Minute', 'EfectiveMinute',  'PlayerID', 'Player', 'Team', 'X1', 'Y1', 'X2', 'Y2']])
