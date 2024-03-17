@@ -337,13 +337,13 @@ if menu_id == "ExploreTeamData":
                 meanposx = df9['X1'].mean()
                 meanposy = df9['Y1'].mean()
                 ax.scatter(meanposx, meanposy, s=1000, color="w", edgecolors=colorviz, lw=2.5, zorder=25, alpha=0.95)
-                names = PlayerSelExpData.split()
-                iniciales = ""
-                for name in names:
-                   iniciales += name[0] 
+                #names = PlayerSelExpData.split()
+                #iniciales = ""
+                #for name in names:
+                #   iniciales += name[0] 
                 #names_iniciales = names_iniciales.squeeze().tolist()
-                ax.text(meanposx, meanposy, iniciales, color='k', fontproperties=prop2, fontsize=13, zorder=34, ha='center', va='center')
-                ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKcleaned)) + " TOQUES", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                #ax.text(meanposx, meanposy, iniciales, color='k', fontproperties=prop2, fontsize=13, zorder=34, ha='center', va='center')
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKcleaned)) + " TOQUES", c='w', fontsize=10, fontproperties=prop2, ha='center')
                 #Adding title
                 ax9 = fig.add_axes([0.17,0.16,0.20,0.07])
                 ax9.axis("off")
