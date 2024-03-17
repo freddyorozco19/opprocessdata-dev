@@ -329,7 +329,7 @@ if menu_id == "ExploreTeamData":
                 
                 #df = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
                 #dfKKcleaned = df
-                df = df[df['X1'] >= 52.5].reset_index()
+                df = df[df['Y1'] >= 52.5].reset_index()
 
                 ax.scatter(df['X1'], df['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
                 
