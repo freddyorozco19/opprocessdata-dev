@@ -218,7 +218,7 @@ if menu_id == "ExploreTeamData":
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
 
-    dfORIG = df
+    #dfORIG = df
     st.dataframe(df)
     st.divider()
 
