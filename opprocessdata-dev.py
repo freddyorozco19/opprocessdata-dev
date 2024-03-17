@@ -238,7 +238,7 @@ if menu_id == "ExploreTeamData":
     if PlotVizSelExpData == "Acciones":
         pltmnop01, pltmnop02, pltmnop03 = st.columns(3)
         with pltmnop01:
-            OptionPlot = ['Touches Map', 'Touches Opponent Field', 'Territory Actions', 'Heatmap - Opponnent Field', 'Heatmap - Zones', 'Heatmap - Gaussian', 'Heatmap - Kernel', 'Field Tilt']
+            OptionPlot = ['Touches Map', 'Touches Opponent Field', 'Territory Actions', 'Heatmap - Opponent Field', 'Heatmap - Zones', 'Heatmap - Gaussian', 'Heatmap - Kernel', 'Field Tilt']
             OptionPlotSel = st.selectbox('Seleccionar tipo gráfico:', OptionPlot)
         with pltmnop02:
             EfectMinSel = st.slider('Seleccionar rango de partido:', 0, MaxAddMin, (0, MaxAddMin))
@@ -256,6 +256,8 @@ if menu_id == "ExploreTeamData":
             ax.axis("off")
             fig.patch.set_visible(False)
             if OptionPlotSel == 'Touches Opponent Field':
+                pitch = VerticalPitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+            if OptionPlotSel == 'Heatmap - Opponent Field':
                 pitch = VerticalPitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
             else:
                 pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
@@ -393,6 +395,175 @@ if menu_id == "ExploreTeamData":
                 ax9.scatter(8, 5, s=320, color=colorviz, edgecolors='#FFFFFF', lw=1, ls='--', marker='h')
                 ax9.text(8, -0.5, 'TERRITORIO\nRECURRENTE', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
                 st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+
+            elif OptionPlotSel == 'Heatmap - Opponent Field':
+                
+                #df = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+                #dfKKcleaned = df
+                zone_areas = {
+                    'zone_1':{
+                        'x_lower_bound': 54.16, 'x_upper_bound': 68,
+                        'y_lower_bound': 88.5, 'y_upper_bound': 105,
+                    },
+                    'zone_2':{
+                        'x_lower_bound': 0, 'x_upper_bound': 13.84,
+                        'y_lower_bound': 88.5, 'y_upper_bound': 105,
+                    },
+                    'zone_3':{
+                        'x_lower_bound': 54.16, 'x_upper_bound': 68,
+                        'y_lower_bound': 70.5, 'y_upper_bound': 88.5,
+                    },
+                    'zone_4':{
+                        'x_lower_bound': 0, 'x_upper_bound': 13.84,
+                        'y_lower_bound': 70.5, 'y_upper_bound': 88.5,
+                    },
+                    'zone_5':{
+                        'x_lower_bound': 43.16, 'x_upper_bound': 54.16,
+                        'y_lower_bound': 88.5, 'y_upper_bound': 105,
+                    },
+                    'zone_6':{
+                        'x_lower_bound': 13.84, 'x_upper_bound': 24.84,
+                        'y_lower_bound': 88.5, 'y_upper_bound': 105,
+                    },
+                    'zone_7':{
+                        'x_lower_bound': 24.84, 'x_upper_bound': 43.16,
+                        'y_lower_bound': 88.5, 'y_upper_bound': 105,
+                    },
+                    'zone_8':{
+                        'x_lower_bound': 24.84, 'x_upper_bound': 43.16,
+                        'y_lower_bound': 70.5, 'y_upper_bound': 88.5,
+                    },
+                    'zone_9':{
+                        'x_lower_bound': 43.16, 'x_upper_bound': 54.16,
+                        'y_lower_bound': 70.5, 'y_upper_bound': 88.5,
+                    },
+                    'zone_10':{
+                        'x_lower_bound': 13.84, 'x_upper_bound': 24.84,
+                        'y_lower_bound': 70.5, 'y_upper_bound': 88.5,
+                    },
+                    'zone_11':{
+                        'x_lower_bound': 43.16, 'x_upper_bound': 54.16,
+                        'y_lower_bound': 52.5, 'y_upper_bound': 70.5,
+                    },
+                    'zone_12':{
+                        'x_lower_bound': 13.84, 'x_upper_bound': 24.84,
+                        'y_lower_bound': 52.5, 'y_upper_bound': 70.5,
+                    },
+                    'zone_13':{
+                        'x_lower_bound': 54.16, 'x_upper_bound': 68,
+                        'y_lower_bound': 52.5, 'y_upper_bound': 70.5,
+                    },
+                    'zone_14':{
+                        'x_lower_bound': 0, 'x_upper_bound': 13.84,
+                        'y_lower_bound': 52.5, 'y_upper_bound': 70.5,
+                    },
+                    'zone_15':{
+                        'x_lower_bound': 24.84, 'x_upper_bound': 43.16,
+                        'y_lower_bound': 52.5, 'y_upper_bound': 70.5,
+                    }
+                }
+                
+                def assign_action_zone(x,y):
+                    '''
+                    This function returns the zone based on the x & y coordinates of the shot
+                    taken.
+                    Args:
+                        - x (float): the x position of the shot based on a vertical grid.
+                        - y (float): the y position of the shot based on a vertical grid.
+                    '''
+                
+                    global zone_areas
+                
+                    # Conditions
+                
+                    for zone in zone_areas:
+                        if (x >= zone_areas[zone]['x_lower_bound']) & (x <= zone_areas[zone]['x_upper_bound']):
+                            if (y >= zone_areas[zone]['y_lower_bound']) & (y <= zone_areas[zone]['y_upper_bound']):
+                                return zone
+                
+                
+                zone_colors = {
+                    'zone_1': 'black',
+                    'zone_2': 'red',
+                    'zone_3': 'blue',
+                    'zone_4': 'yellow',
+                    'zone_5': 'green',
+                    'zone_6': 'pink',
+                    'zone_7': 'purple',
+                    'zone_8': 'grey',
+                    'zone_9': 'brown',
+                    'zone_10': 'lightblue',
+                    'zone_11': 'lightcyan',
+                    'zone_12': 'lightgrey',
+                    'zone_13': 'w',
+                    'zone_14': 'orange',
+                    'zone_15': 'cyan'
+                }
+                
+                df.rename(columns={'X1':'Y1', 'Y1':'X1'}, inplace=True)
+                df = df[df['Y1'] >= 52.5].reset_index()
+
+                df['zone_area'] = [assign_action_zone(x,y) for x,y in zip(df['X1'], df['Y1'])]
+
+
+
+
+                data = df.groupby(['zone_area']).apply(lambda x: x.shape[0]).reset_index()
+                data.rename(columns={0:'num_actions'}, inplace=True)
+                data['pct_actions'] = data['num_actions']/df['index'].count()
+                
+                
+                plot_df = data
+                max_value = plot_df['pct_actions'].max()
+                
+                
+                
+                for zone in plot_df['zone_area']:
+                    action_pct = plot_df[plot_df['zone_area'] == zone]['pct_actions'].iloc[0]
+                    x_lim = [zone_areas[zone]['x_lower_bound'], zone_areas[zone]['x_upper_bound']]
+                    y1 = zone_areas[zone]['y_lower_bound']
+                    y2 = zone_areas[zone]['y_upper_bound']
+                    ax2.fill_between(
+                        x=x_lim, 
+                        y1=y1, y2=y2, 
+                        color=colorviz, alpha=((action_pct/max_value)),
+                        zorder=0, ec='None')
+                    if action_pct > 0.005:
+                        x_pos = x_lim[0] + abs(x_lim[0] - x_lim[1])/2
+                        y_pos = y1 + abs(y1 - y2)/2
+                        text_ = ax2.annotate(
+                            xy=(x_pos, y_pos),
+                            text=f'{action_pct:.0%}',
+                            ha='center',
+                            va='center',
+                            color='k',
+                            fontproperties=prop2,
+                            size=20
+                        )
+                        text_.set_path_effects(
+                            [path_effects.Stroke(linewidth=1.0, foreground='w'), path_effects.Normal()]
+                        )
+
+
+                ax.plot([13.84, 13.84], [52.5, 105], ls='--', color='#9F9F9F')
+                ax.plot([54.16, 54.16], [52.5, 105], ls='--', color='#9F9F9F')
+                ax.plot([24.84, 24.84], [52.5, 105], ls='--', color='#9F9F9F')
+                ax.plot([43.16, 43.16], [52.5, 105], ls='--', color='#9F9F9F')
+                ax.plot([0, 68], [88.5, 88.5], ls='--', color='#9F9F9F')
+                ax.plot([0, 68], [70.5, 70.5], ls='--', color='#9F9F9F')
+
+                ax.scatter(df['X1'], df['Y1'], color = colorviz, edgecolors='w', s=30, zorder=2, alpha=0.2)
+                ax.set_ylim(52.3,110)
+                #Adding title
+                ax9 = fig.add_axes([0.16,0.135,0.20,0.07])
+                ax9.axis("off")
+                ax9.set_xlim(0,10)
+                ax9.set_ylim(0,10)
+                ax9.scatter(2, 5, s=120, color=colorviz, edgecolors='#FFFFFF', lw=1)
+                ax9.text(2, 1.0, 'ACCIONES', fontproperties=prop2, fontsize=9, ha='center', va='center', c='w')
+
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+                
             elif OptionPlotSel == 'Heatmap - Zones':
 
                 df = df[df['Event'] != 'Assists'].reset_index(drop=True)
