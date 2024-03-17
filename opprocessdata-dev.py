@@ -255,7 +255,10 @@ if menu_id == "ExploreTeamData":
             fig, ax = mplt.subplots(figsize=(8, 8), dpi = 800)
             ax.axis("off")
             fig.patch.set_visible(False)
-            pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+            if OptionPlotSel == 'Touches Opponent Field':
+                pitch = VerticalPitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+            else:
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
             pitch.draw(ax=ax)
             #Adding directon arrow
             ax29 = fig.add_axes([0.368,0.22,0.3,0.05])
