@@ -1098,7 +1098,7 @@ if menu_id == "DataScraping":
         
         st.markdown("""---""")
         with st.form(key='form5'):
-            MatchURL = st.text_input("Match URL", key=matchurl)
+            MatchURL = st.text_input("Match URL", key="matchurl")
 
             DataMode = st.checkbox("Activate calculated columns")
             submit_button2 = st.form_submit_button(label='Aceptar')
