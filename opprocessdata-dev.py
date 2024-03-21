@@ -257,7 +257,7 @@ if menu_id == "ExploreTeamData":
             ax.axis("off")
             fig.patch.set_visible(False)
             if (OptionPlotSel == 'Touches Opponent Field') | (OptionPlotSel == 'Heatmap - Opponent Field'):
-                pitch = VerticalPitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch = VerticalPitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1.0, goal_type='box', pitch_length=105, pitch_width=68)
 
             else:
                 pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
