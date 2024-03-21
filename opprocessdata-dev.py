@@ -1127,7 +1127,7 @@ if menu_id == "ExploreTeamData":
             df = df[(df['EfectiveMinute'] >= EfectMinSel[0]) & (df['EfectiveMinute'] <= EfectMinSel[1])]
             dfKK = df
             if OptionPlotSel == 'Recoveries Map':
-                df = df[(df['Event'] == 'Recoveries Map')].reset_index()
+                df = df[(df['Event'] == 'Recoveries')].reset_index()
                 dfKKK = df
                 dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
                
@@ -1149,6 +1149,8 @@ if menu_id == "ExploreTeamData":
                 #ax9.text(78.75, 2, 'PASES CLAVES', color='#C7B200', fontproperties=prop2, ha='center', fontsize=9)
 
                 st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png") 
+        with pltmain22:
+            st.dataframe(df[['ActionID', 'Event', 'Minute', 'EfectiveMinute', 'PlayerID', 'Player', 'Team', 'X1', 'Y1', 'X2', 'Y2']])
         
 if menu_id == "DataScraping":
     with st.sidebar:
