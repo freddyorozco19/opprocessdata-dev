@@ -260,7 +260,7 @@ if menu_id == "ExploreTeamData":
                 pitch = VerticalPitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1.0, goal_type='box', pitch_length=105, pitch_width=68)
 
             else:
-                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=0.5, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1.0, goal_type='box', pitch_length=105, pitch_width=68)
                 #Adding directon arrow
                 ax29 = fig.add_axes([0.368,0.22,0.3,0.05])
                 ax29.axis("off")
