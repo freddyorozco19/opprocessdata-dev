@@ -1082,6 +1082,74 @@ if menu_id == "ExploreTeamData":
                 st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
         with pltmain12:
             st.dataframe(df[['ActionID', 'Event', 'Minute', 'EfectiveMinute', 'PlayerID', 'Player', 'Team', 'X1', 'Y1', 'X2', 'Y2']])
+    if PlotVizSelExpData == "Recuperaciones":
+        pltmnop21, pltmnop22, pltmnop23 = st.columns(3)
+        with pltmnop21:
+            OptionPlot = ['Recoveries Map', 'Recoveries - Heatmap Bins']
+            OptionPlotSel = st.selectbox('Seleccionar tipo gráfico:', OptionPlot)
+        with pltmnop22:
+            EfectMinSel = st.slider('Seleccionar rango de partido:', 0, MaxAddMin, (0, MaxAddMin))
+        with pltmnop23:
+                MetOption = ['WinStats', 'FD']
+                MetOptionSel = st.selectbox('Choose color type:', MetOption)
+        if MetOptionSel == 'WinStats':
+            hex_list2 = ['#121214', '#D81149', '#FF0050']
+            hex_list = ['#121214', '#545454', '#9F9F9F']
+            colorviz = "#FF0050"
+        if MetOptionSel == 'FD':
+            hex_list2 = ['#5A9212', '#70BD0C', '#83E604']
+            hex_list = ['#121214', '#545454', '#9F9F9F']
+            colorviz = "#83E604"
+        pltmain21, pltmain22 = st.columns(2)
+        with pltmain21:
+            fig, ax = mplt.subplots(figsize=(8, 8), dpi = 800)
+            ax.axis("off")
+            fig.patch.set_visible(False)
+            pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1.0, goal_type='box', pitch_length=105, pitch_width=68)
+            pitch.draw(ax=ax)
+            #Adding directon arrow
+            ax29 = fig.add_axes([0.368,0.22,0.3,0.05])
+            ax29.axis("off")
+            ax29.set_xlim(0,10)
+            ax29.set_ylim(0,10)
+            ax29.annotate('', xy=(2, 6), xytext=(8, 6), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+            #ax29.annotate(s='', xy=(2, 5), xytext=(8, 5), arrowprops=dict(arrowstyle='<-', ls= '-', lw = 1, color = (1,1,1,0.5)))
+            ax29.text(5, 2, 'Dirección campo de juego', fontproperties=prop3, c=(1,1,1,0.5), fontsize=10, ha='center')
+            #Adding winstats logo
+            ax53 = fig.add_axes([0.82, 0.14, 0.05, 0.05])
+            url53 = "https://i.postimg.cc/R0QjGByL/sZggzUM.png"
+            response = requests.get(url53)
+            img = Image.open(BytesIO(response.content))
+            ax53.imshow(img)
+            ax53.axis("off")
+            ax53.set_facecolor("#000")
+            #st.dataframe(dfDOWN)
+            df = df[(df['EfectiveMinute'] >= EfectMinSel[0]) & (df['EfectiveMinute'] <= EfectMinSel[1])]
+            dfKK = df
+            if OptionPlotSel == 'Recoveries Map':
+                df = df[(df['Event'] == 'Recoveries Map')].reset_index()
+                dfKKK = df
+                dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
+               
+                pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1, goal_type='box', pitch_length=105, pitch_width=68)
+                pitch.draw(ax=ax)
+                
+                ax.scatter(df['X1'], df['Y1'], color=colorviz, edgecolors='#121214', zorder=3, lw=0.5)           
+
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKK)) + " PASES COMPLETOS", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.20,0.14,0.63,0.07])
+                ax9.set_xlim(0,105)
+                ax9.set_ylim(0,20)
+                ax9.axis("off")
+                #ax9.scatter(26.25, 12, marker='s', color='#9F9F9F', s=300)
+                #ax9.text(26.25, 2, 'PASES EFECTIVOS', color='#9F9F9F', fontproperties=prop2, ha='center', fontsize=9)
+                #ax9.scatter(52.5, 12, marker='s', color=colorviz, s=300)
+                #ax9.text(52.5, 2, 'PASES PROGRESIVOS', color=colorviz, fontproperties=prop2, ha='center', fontsize=9)
+                #ax9.scatter(78.75, 12, marker='s', color='#C7B200', s=300)
+                #ax9.text(78.75, 2, 'PASES CLAVES', color='#C7B200', fontproperties=prop2, ha='center', fontsize=9)
+
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png") 
+        
 if menu_id == "DataScraping":
     with st.sidebar:
         with open("Resources/win.png", "rb") as f:
