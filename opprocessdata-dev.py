@@ -1134,7 +1134,7 @@ if menu_id == "ExploreTeamData":
                 pitch = Pitch(pitch_color='None', pitch_type='custom', line_zorder=1, linewidth=1, goal_type='box', pitch_length=105, pitch_width=68)
                 pitch.draw(ax=ax)
                 
-                ax.scatter(df['X1'], df['Y1'], color=colorviz, edgecolors='#121214', zorder=3, lw=0.5, s=80)           
+                ax.scatter(df['X1'], df['Y1'], color=colorviz, edgecolors='#121214', zorder=3, lw=0.5, s=70)           
 
                 #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKK)) + " PASES COMPLETOS", c='w', fontsize=10, fontproperties=prop2, ha='center')
                 ax9 = fig.add_axes([0.20,0.14,0.63,0.07])
