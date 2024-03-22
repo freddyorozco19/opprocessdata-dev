@@ -1127,6 +1127,7 @@ if menu_id == "ExploreTeamData":
             df = df[(df['EfectiveMinute'] >= EfectMinSel[0]) & (df['EfectiveMinute'] <= EfectMinSel[1])]
             dfKK = df
             if OptionPlotSel == 'Recoveries Map':
+                df = dfKK
                 df = df[(df['Event'] == 'Recoveries')].reset_index()
                 dfKKK = df
                 dfKKK = df.drop_duplicates(subset=['X1', 'Y1', 'X2', 'Y2'], keep='last')
@@ -1148,7 +1149,26 @@ if menu_id == "ExploreTeamData":
                 #ax9.scatter(78.75, 12, marker='s', color='#C7B200', s=300)
                 #ax9.text(78.75, 2, 'PASES CLAVES', color='#C7B200', fontproperties=prop2, ha='center', fontsize=9)
 
-                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png") 
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+            elif OptionPlotSel == 'Recoveries - Heatmap Bins':
+                df = dfKK
+                path_eff = [path_effects.Stroke(linewidth=2, foreground='black'), path_effects.Normal()]
+                bin_statistic = pitch.bin_statistic_positional(df.X1, df.Y1, statistic='count', positional='full', normalize=True)
+                pitch.heatmap_positional(bin_statistic, ax=ax, cmap=cmaps, edgecolors='#524F50', linewidth=1)
+                pitch.scatter(df.X1, df.Y1, c='w', s=15, alpha=0.02, ax=ax)
+                labels = pitch.label_heatmap(bin_statistic, color='#f4edf0', fontsize=14, fontproperties=prop2, ax=ax, ha='center', va='center', str_format='{:.0%}', path_effects=path_eff)
+                #ax.text(52.5,70, "" + PlayerSelExpData.upper() + " - " + str(len(dfKKcleaned)) + " TOQUES", c='w', fontsize=10, fontproperties=prop2, ha='center')
+                ax9 = fig.add_axes([0.14,0.15,0.20,0.07])
+                ax9.scatter(6.75,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=1.0)
+                ax9.scatter(5.00,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=0.6)
+                ax9.scatter(3.25,5, c=colorviz, marker='h', s=400, edgecolors='#121214', alpha=0.2)
+                ax9.text(5, 0, '-  ACCIONES REALIZADAS  +', c='w', fontproperties=prop2, fontsize=9, ha='center')
+                ax9.axis("off")
+                ax9.set_xlim(0,10)
+                ax9.set_ylim(0,10)
+
+                st.pyplot(fig, bbox_inches="tight", pad_inches=0.05, dpi=400, format="png")
+                
         with pltmain22:
             st.dataframe(df[['ActionID', 'Event', 'Minute', 'EfectiveMinute', 'PlayerID', 'Player', 'Team', 'X1', 'Y1', 'X2', 'Y2']])
         
